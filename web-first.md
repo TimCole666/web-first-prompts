@@ -63,6 +63,12 @@ Do not delegate implementation to a local coding agent merely because an upstrea
 
 When an upstream skill says to inspect a working directory, inspect the canonical GitHub repository and supplied artifacts instead.
 
+Do not treat a Git clone inside the Web sandbox as the default way to inspect or materialize a repository.
+
+When canonical repository contents are available through the connected GitHub capability or public GitHub fetch, use that source directly. Do not first attempt `git clone`, `git fetch`, or `git pull` merely to discover whether sandbox network access works.
+
+If filesystem mechanics are needed for patch generation or verification, materialize the exact required canonical files into a disposable Web working tree and use Git locally there. Use an existing trustworthy Web working tree when one is already available; do not provision one through network cloning merely because an upstream local-agent workflow assumes a checkout.
+
 Do not create repository-local process files merely because a local-agent workflow expects them.
 
 In particular, `CONTEXT.md`, ADRs, `.scratch` trackers, ticket trees, setup scaffolding, and similar persistent coordination machinery are opt-in. Create them only when they provide concrete value for the actual project.
