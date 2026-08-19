@@ -26,6 +26,10 @@ New tool / framework / infrastructure / large new direction:
 
 `GRILL → REUSE → SPEC → IMPLEMENT`
 
+Independent factual or technical investigation:
+
+`RESEARCH`
+
 Verification failure:
 
 `REPAIR`
@@ -49,11 +53,11 @@ Recommend a real fresh ChatGPT conversation when it would materially improve ind
 
 Do not simulate multiple subagents inside one answer.
 
-When spawning a fresh conversation, output only a compact launcher referencing the same prompt repository URL the user used for this session:
+When spawning a fresh conversation, output only a compact launcher pointing directly at the relevant prompt file:
 
 ```text
-Use this prompt library: <same repo URL>
-Mode: <grill|reuse|spec|implement|review|repair>
+Follow this prompt:
+https://raw.githubusercontent.com/TimCole666/web-first-prompts/main/prompts/<research|grill|reuse|spec|implement|review|repair>.md
 
 Goal: ...
 Canonical state: ...

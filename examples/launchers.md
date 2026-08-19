@@ -1,33 +1,44 @@
 # Launcher examples
 
-Replace the prompt-library URL with your published repository URL.
+Each fresh conversation points directly at one raw prompt file. No prompt installation or mode router is required.
 
 ## Main
 
 ```text
-Use this prompt library: https://github.com/YOUR_NAME/web-first-prompts
-Mode: main
+Follow this prompt:
+https://raw.githubusercontent.com/TimCole666/web-first-prompts/main/prompts/main.md
 
 Goal: continue development of ...
 Canonical state: https://github.com/ORG/REPO/tree/main
 ```
 
+## Independent research
+
+```text
+Follow this prompt:
+https://raw.githubusercontent.com/TimCole666/web-first-prompts/main/prompts/research.md
+
+Goal: determine ...
+Relevant context: ...
+Expected return: evidence-backed answer and project consequence
+```
+
 ## Reuse research
 
 ```text
-Use this prompt library: https://github.com/YOUR_NAME/web-first-prompts
-Mode: reuse
+Follow this prompt:
+https://raw.githubusercontent.com/TimCole666/web-first-prompts/main/prompts/reuse.md
 
 Goal: decide whether we should build X
 Relevant context: we need ...
-Expected return: reuse/build decision
+Expected return: USE / FORK / EXTRACT / REFERENCE / BUILD
 ```
 
 ## Fresh review
 
 ```text
-Use this prompt library: https://github.com/YOUR_NAME/web-first-prompts
-Mode: review
+Follow this prompt:
+https://raw.githubusercontent.com/TimCole666/web-first-prompts/main/prompts/review.md
 
 Goal: independently review feature X
 Canonical state: https://github.com/ORG/REPO/tree/feature-x
@@ -38,8 +49,8 @@ Relevant context: acceptance criteria are ...
 ## Repair
 
 ```text
-Use this prompt library: https://github.com/YOUR_NAME/web-first-prompts
-Mode: repair
+Follow this prompt:
+https://raw.githubusercontent.com/TimCole666/web-first-prompts/main/prompts/repair.md
 
 Canonical state: https://github.com/ORG/REPO/tree/feature-x
 Task: repair this real failure

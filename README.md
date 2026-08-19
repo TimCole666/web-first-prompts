@@ -6,43 +6,42 @@ No CLI. No skill installer. No local agent required.
 
 ## Quick use
 
-In a fresh ChatGPT Web conversation, send:
+In a fresh ChatGPT Web conversation, reference the prompt directly:
 
 ```text
-Use this prompt library: https://github.com/YOUR_NAME/web-first-prompts
-Mode: review
+Follow this prompt:
+https://raw.githubusercontent.com/TimCole666/web-first-prompts/main/prompts/review.md
 
 Goal: review the current implementation
 Canonical state: https://github.com/ORG/REPO/tree/BRANCH
 Relevant context: ...
 ```
 
-The assistant should read this repository, load the matching file under `prompts/`, and follow it.
+That is the whole invocation. The prompt lives on GitHub; the chat only carries task-specific context.
 
-You only need to remember one stable repository URL plus a mode.
+## Prompts
 
-## Modes
-
-| Mode | File | Purpose |
-|---|---|---|
-| `main` | `prompts/main.md` | Coordinator / router |
-| `grill` | `prompts/grill.md` | Challenge the goal and proposed solution |
-| `reuse` | `prompts/reuse.md` | Search GitHub and primary sources before building |
-| `spec` | `prompts/spec.md` | Turn settled decisions into a compact implementation-ready spec |
-| `implement` | `prompts/implement.md` | Web authors the actual implementation and tests |
-| `review` | `prompts/review.md` | Fresh independent review |
-| `repair` | `prompts/repair.md` | Repair from real verification failures |
-| `checkpoint` | `prompts/checkpoint.md` | Compact a long coordinator conversation |
+| Prompt | Purpose |
+|---|---|
+| [`main`](prompts/main.md) | Coordinator / router |
+| [`grill`](prompts/grill.md) | Challenge the goal and proposed solution |
+| [`research`](prompts/research.md) | Independent bounded research |
+| [`reuse`](prompts/reuse.md) | Search GitHub and primary sources before building |
+| [`spec`](prompts/spec.md) | Turn settled decisions into a compact implementation-ready spec |
+| [`implement`](prompts/implement.md) | Web authors the actual implementation and tests |
+| [`review`](prompts/review.md) | Fresh independent review |
+| [`repair`](prompts/repair.md) | Repair from real verification failures |
+| [`checkpoint`](prompts/checkpoint.md) | Compact a long coordinator conversation |
 
 ## Handoffs
 
-The `main` mode should not paste full worker prompts.
+The `main` prompt should not paste worker prompts into the conversation.
 
-When a fresh conversation is useful, it should generate a short launcher that references this same prompt repository:
+When a fresh conversation is useful, it should generate a short launcher pointing directly at the matching raw prompt URL:
 
 ```text
-Use this prompt library: <same repo URL>
-Mode: <worker mode>
+Follow this prompt:
+https://raw.githubusercontent.com/TimCole666/web-first-prompts/main/prompts/<mode>.md
 
 Goal: ...
 Canonical state: ...
