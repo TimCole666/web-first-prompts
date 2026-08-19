@@ -85,6 +85,116 @@ Use current repository state, official documentation, primary sources, source co
 
 If upstream `research` expects a background agent and a Markdown file, perform the research in Web or a real fresh conversation. Return the findings directly unless a durable research artifact has concrete downstream value.
 
+### Spec decisions and canonicalization
+
+Follow the current upstream `to-spec` semantics rather than treating SPEC as free-form prose.
+
+Upstream already requires proposed testing seams to be checked with the user. Treat that check as a hard gate, not a suggestion.
+
+Do not reopen the full grill or turn SPEC into an implementation questionnaire. Ordinary internal implementation choices remain the agent's responsibility.
+
+A proposed architecture decision requires targeted user confirmation before it becomes `Fixed` in the canonical spec when all of these are true:
+
+1. it creates or changes a primary application, service, runtime, integration, state-ownership, or testing seam;
+2. it materially constrains module architecture, testing boundaries, implementation decomposition, or later replacement cost;
+3. the canonical repository and prior user-confirmed decisions do not already establish it;
+4. the user has not explicitly delegated that class of architecture decision.
+
+When this gate is triggered, pause only that branch and present:
+
+```text
+Recommended primary seam:
+...
+
+Why:
+...
+
+Alternatives materially considered:
+...
+
+This decision will determine:
+...
+
+Confirm / modify?
+```
+
+A recommendation remains a recommendation until confirmed or delegated.
+
+For multi-session or repository-backed work, distinguish:
+
+- `SPEC DRAFTED` — the content exists only in conversation or an unpersisted artifact;
+- `SPEC COMPLETE` — the final spec is persisted in canonical repository state and the publish step has succeeded.
+
+A spec intended to govern later fresh sessions is not complete while it exists only in chat.
+
+#### Existing canonical repository
+
+Before creating a new spec file, inspect the repository for an existing canonical spec/design convention.
+
+- If a relevant canonical spec/design artifact already exists, update it.
+- If the repository has an established docs/spec convention, follow it.
+- Otherwise, for one active project-level spec, default to `SPEC.md` at the repository root.
+- Do not create a documentation hierarchy merely to satisfy the workflow.
+
+ChatGPT Web owns the path decision, exact spec contents, and patch.
+
+When direct repository writes have not been proven for the current connection, complete persistence mechanically:
+
+```text
+ChatGPT Web authors final spec patch
+→ local git apply
+→ git diff --check
+→ inspect git diff / git status
+→ local commit
+→ local push
+→ SPEC COMPLETE
+```
+
+If deterministic checks expose a problem, Web authors the repair. Do not use a local coding agent to rewrite or reinterpret the spec.
+
+Do not announce `SPEC COMPLETE` until the push (or an equivalent proven direct repository write) has succeeded.
+
+#### Greenfield with no canonical repository
+
+If the work is a real multi-session repository-backed build and no canonical repository exists yet, SPEC owns a thin canonicalization transition.
+
+ChatGPT Web should:
+
+1. finalize any required high-impact seam confirmations;
+2. choose the minimal bootstrap contents;
+3. author the bootstrap artifact, including the final canonical spec;
+4. provide deterministic repository initialization / validation / commit / push mechanics.
+
+With no established repository convention, default the canonical spec to `SPEC.md`.
+
+The bootstrap may include only files that are already justified at this phase. Do not add implementation, `CONTEXT.md`, ADRs, tickets, roadmap files, or planning infrastructure merely to make the repository look complete.
+
+Do not create an empty repository and expect a later agent to reconstruct the spec from conversation history.
+
+After the first successful push, that GitHub state becomes canonical and later fresh sessions must read it first.
+
+#### Leaving SPEC
+
+After canonical persistence succeeds:
+
+- if the implementation is multi-session, important, or benefits materially from context isolation, generate a short fresh-conversation IMPLEMENT handoff that references the canonical repository and spec instead of duplicating them;
+- if the implementation is genuinely small and the current context remains healthy, continuing in the same conversation is allowed;
+- do not force `to-tickets` or other project-management machinery unless the work actually needs it.
+
+The Web-first phase boundary is therefore:
+
+```text
+GRILL or other upstream entry
+→ to-spec synthesis
+→ targeted high-impact seam confirmation when required
+→ final spec
+→ canonical persistence
+→ deterministic verification / diff inspection
+→ commit + push
+→ SPEC COMPLETE
+→ IMPLEMENT (fresh conversation when appropriate)
+```
+
 ### Implementation and TDD
 
 Author the actual implementation and tests in ChatGPT Web.
@@ -146,12 +256,13 @@ Classify findings as:
 - Requested solution is not automatically the actual goal.
 - "Do not build", simplify, reuse, and delete are valid outcomes.
 - Investigate discoverable facts instead of asking the user.
-- Recommendations are not user-confirmed product decisions.
+- Recommendations are not user-confirmed decisions; high-impact canonical seams require the targeted confirmation gate above unless already established or delegated.
 - Do not invent infrastructure for hypothetical future needs.
 - Prefer reuse when it is genuinely cheaper than building; consider fit, maintenance, license, adoption, dependency surface, and replacement cost.
 - Do not treat GitHub stars as quality, but treat extremely low adoption as a reason to default to reference rather than dependency.
 - Use the smallest workflow that fits the task.
 - Never claim verification without actual execution evidence.
+- Never claim a repository-backed SPEC phase is complete before its canonical persistence step succeeds.
 
 ## Precedence
 
