@@ -28,6 +28,22 @@ Treat the pushed repository/branch/commit as canonical unless the user explicitl
 
 Use connected GitHub data when available for repository contents, diffs, PRs, issues, reviews, and CI context. Otherwise use public GitHub/Web access.
 
+### Artifact verification
+
+For repository-backed incremental patches, generate and verify the patch against the exact canonical base whenever that base is accessible.
+
+Before delivering a patch:
+
+1. read the canonical repository state at a specific branch / commit;
+2. generate the patch from that exact content;
+3. run `git apply --check` against that exact base;
+4. apply it in a disposable verification tree and run `git diff --check`;
+5. only then describe the patch as applicability-verified.
+
+A synthetic, partial, or reconstructed base may be useful for debugging, but it is not final applicability evidence unless its exact content identity has first been proven against the canonical repository (for example by matching the canonical Git blob SHA).
+
+If the exact canonical base is genuinely unavailable, say that applicability verification is provisional and make the local `git apply --check` authoritative.
+
 ### Where substantive work happens
 
 ChatGPT Web owns the substantive software work:
@@ -219,13 +235,26 @@ After the first successful push, that GitHub state becomes canonical and later f
 
 #### Leaving SPEC
 
-After canonical persistence succeeds:
+After canonical persistence succeeds, preserve the upstream multi-session branch instead of jumping directly to implementation.
 
-- if the implementation is multi-session, important, or benefits materially from context isolation, generate a short fresh-conversation IMPLEMENT handoff that references the canonical repository and spec instead of duplicating them;
-- if the implementation is genuinely small and the current context remains healthy, continuing in the same conversation is allowed;
-- do not force `to-tickets` or other project-management machinery unless the work actually needs it.
+First decide whether the implementation is genuinely multi-session.
 
-The Web-first phase boundary is therefore:
+- If **yes**, `to-tickets` is the default next stage. Run the current upstream `to-tickets` skill against the canonical spec before any implementation session starts.
+- If **no**, implementation may continue directly; use a fresh conversation only when it materially improves context quality or independence.
+- If work was already classified as multi-session, do not silently bypass `to-tickets`. Skip it only if new evidence shows the work now fits one implementation session, or the user explicitly chooses to bypass decomposition.
+
+For a multi-session build:
+
+1. derive the ticket breakdown from the canonical spec and current canonical repository, not from an unpushed implementation attempt;
+2. follow upstream tracer-bullet rules: each ticket is a narrow but complete vertical slice, independently demoable or verifiable, and sized for one fresh context window;
+3. declare only real blocking edges;
+4. present the proposed breakdown and get the user's granularity / dependency confirmation as upstream requires;
+5. publish the approved tickets to canonical coordination state;
+6. start implementation from the current ticket frontier, one canonical ticket per fresh IMPLEMENT conversation.
+
+Do not let `/implement` invent a conversation-local "first slice" when canonical execution tickets are required.
+
+The Web-first phase boundary for a genuine multi-session build is therefore:
 
 ```text
 GRILL or other upstream entry
@@ -238,7 +267,17 @@ GRILL or other upstream entry
 → commit + push
 → verify pushed canonical state
 → SPEC COMPLETE
-→ IMPLEMENT (fresh conversation when appropriate)
+→ to-tickets
+→ user confirms ticket granularity / blocking edges
+→ persist canonical tickets
+→ TICKETS COMPLETE
+→ IMPLEMENT one frontier ticket per fresh conversation
+```
+
+For work that genuinely fits one implementation session:
+
+```text
+... → SPEC COMPLETE → IMPLEMENT
 ```
 
 ### Implementation and TDD
@@ -281,11 +320,34 @@ Keep local work mechanical. If verification fails, bring the exact command and o
 
 ### Tickets and project machinery
 
-Do not automatically follow upstream setup, ticketing, tracker, or multi-session machinery.
+Do not create process artifacts for ceremony. This does **not** make upstream `to-tickets` optional when a genuine multi-session build needs canonical implementation-sized work units.
 
-Use tickets, issue trackers, ADRs, persistent context files, prototypes, or extra infrastructure only when the current task is large enough that they reduce real coordination or technical risk.
+Use `to-tickets` by default when the build has already been classified as multi-session: implementation requires multiple fresh work sessions, and vertical slices / blocking edges provide real execution or coordination value.
 
-A complete workflow does not require artificial complexity.
+Tickets have real execution value when they:
+
+- define independently implementable and verifiable vertical slices;
+- fit one fresh implementation context each;
+- map back to the canonical spec without duplicating it;
+- preserve real blocking relationships across sessions;
+- give `/implement` a canonical work unit instead of asking it to invent scope.
+
+Tickets are ceremony when they merely split a one-session change, divide work by helper/layer rather than observable behaviour, or duplicate the spec without improving execution.
+
+Follow the project's existing canonical tracker convention when one exists.
+
+For a GitHub-backed project with no established tracker:
+
+1. prefer GitHub Issues when the connected GitHub capability can actually create them for the repository;
+2. otherwise persist one ticket per file in the canonical repository; follow an existing project convention, or use a minimal `tickets/` directory if none exists.
+
+If tickets are GitHub Issues, the published issues themselves are canonical coordination state; no extra repo commit exists merely to represent them. If tickets are repository files, commit and push them before implementation starts.
+
+Ticket publication happens **after** the canonical spec is persisted, so tickets can reference the canonical spec/path/commit. `TICKETS COMPLETE` means the user-approved breakdown has been published to canonical coordination state.
+
+Each ticket should use upstream `to-tickets` semantics and contain only the information needed to execute the slice. In addition to the upstream behaviour, acceptance criteria, and blockers, include a concise canonical spec reference and the verification path when that prevents ambiguity. Do not copy the whole spec into every ticket.
+
+ADRs, `CONTEXT.md`, roadmaps, and other project-management artifacts remain opt-in and require their own concrete value.
 
 ### Review
 
@@ -308,8 +370,10 @@ Classify findings as:
 - Do not treat GitHub stars as quality, but treat extremely low adoption as a reason to default to reference rather than dependency.
 - Use the smallest workflow that fits the task.
 - Never claim verification without actual execution evidence.
+- Never describe repository patch applicability as verified unless it was checked against the exact canonical base, or exact identity of the verification base was proven against canonical state.
 - Never hand off user-editable semantic placeholders when the local role is deterministic execution.
 - Never claim a repository-backed SPEC phase is complete before its canonical persistence step succeeds.
+- Never let `/implement` invent conversation-local slices for a genuine multi-session build before canonical ticket decomposition is complete.
 
 ## Precedence
 
