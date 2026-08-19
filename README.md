@@ -1,88 +1,61 @@
-# Web-First Prompts
+# Web-First Adapter
 
-A tiny GitHub-hosted prompt registry for Web-first software development.
+A thin compatibility layer for using [Matt Pocock's Skills](https://github.com/mattpocock/skills) from ChatGPT Web.
 
-No CLI. No skill installer. No local agent required.
+This repository does **not** reimplement Matt's workflow. It keeps only the differences required by a Web-first development model.
 
-## Quick use
+## Start
 
-In a fresh ChatGPT Web conversation, reference the prompt directly:
-
-```text
-Follow this prompt:
-https://raw.githubusercontent.com/TimCole666/web-first-prompts/main/prompts/review.md
-
-Goal: review the current implementation
-Canonical state: https://github.com/ORG/REPO/tree/BRANCH
-Relevant context: ...
-```
-
-That is the whole invocation. The prompt lives on GitHub; the chat only carries task-specific context.
-
-## Prompts
-
-| Prompt | Purpose |
-|---|---|
-| [`main`](prompts/main.md) | Coordinator / router |
-| [`grill`](prompts/grill.md) | Challenge the goal and proposed solution |
-| [`research`](prompts/research.md) | Independent bounded research |
-| [`reuse`](prompts/reuse.md) | Search GitHub and primary sources before building |
-| [`spec`](prompts/spec.md) | Turn settled decisions into a compact implementation-ready spec |
-| [`implement`](prompts/implement.md) | Web authors the actual implementation and tests |
-| [`review`](prompts/review.md) | Fresh independent review |
-| [`repair`](prompts/repair.md) | Repair from real verification failures |
-| [`checkpoint`](prompts/checkpoint.md) | Compact a long coordinator conversation |
-
-## Handoffs
-
-The `main` prompt should not paste worker prompts into the conversation.
-
-When a fresh conversation is useful, it should generate a short launcher pointing directly at the matching raw prompt URL:
+In a fresh ChatGPT Web conversation:
 
 ```text
-Follow this prompt:
-https://raw.githubusercontent.com/TimCole666/web-first-prompts/main/prompts/<mode>.md
+Follow this adapter:
+https://raw.githubusercontent.com/TimCole666/web-first-prompts/main/web-first.md
 
-Goal: ...
-Canonical state: ...
-Fixed decisions: ...
-Relevant context: ...
-Task: ...
-Constraints: ...
-Expected return: ...
-Do not: ...
+Task:
+<your real software task>
 ```
 
-Delete fields that are unnecessary for the task.
+The adapter loads the current upstream workflow from Matt's repository and applies the Web-first overrides.
 
 ## Operating model
 
 ```text
-GitHub / project files
+GitHub canonical state
         ↓
 ChatGPT Web
-research / grill / spec / code / tests / review
+inspect / research / grill / design / implement / review
         ↓
-ZIP / patch / complete code
+Web runtime verification when available
         ↓
-deterministic local or CI verification
+patch + deterministic verification commands when needed
         ↓
-manual commit / push
+local git apply / runtime verify / commit / push
 ```
 
-If ChatGPT Web has a suitable runtime, run tests there too. Never claim RED, GREEN, or verification without actual execution.
+The standard GitHub connection is useful for reading canonical repository state, diffs, PRs, issues, and CI context. Do not assume repository write access unless a write action has actually been demonstrated for that connection.
 
-## Design rules
+A local coding agent is not part of the default workflow.
 
-- Use the smallest workflow that fits the task.
-- Requested solution is not automatically the real goal.
-- New infrastructure defaults to `grill → reuse → spec → implement`.
-- Small bugs and mechanical changes do not need ceremony.
-- Prefer primary sources and current GitHub source when external research matters.
-- Low-adoption projects can be useful references without being good dependencies.
-- Do not invent local coding-agent work when Web can author the result directly.
-- Real fresh conversations are the subagent mechanism; do not simulate multiple subagents inside one response.
-- GitHub/pushed repository state is canonical unless the user explicitly supplies newer local state.
+## Upstream policy
+
+Matt's current `main` branch is the upstream workflow definition.
+
+We intentionally follow upstream raw skills rather than copying them here. If upstream changes materially, the adapter should be reviewed rather than maintaining a parallel fork of the workflow.
+
+## What this repository owns
+
+Only Web-first differences, especially:
+
+- GitHub/connected sources instead of assuming a local working directory;
+- ChatGPT Web as the substantive development environment;
+- real fresh ChatGPT conversations instead of simulated local subagents;
+- no automatic `CONTEXT.md`, ADR, ticket, or setup machinery unless it earns its place;
+- Web-native tests when possible, deterministic local/CI verification otherwise;
+- patches as the normal handoff when direct repository writes are unavailable;
+- local `git` limited to applying, verifying, committing, and pushing changes.
+
+See [`web-first.md`](web-first.md) for the actual adapter.
 
 ## License
 
