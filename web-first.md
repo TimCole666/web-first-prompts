@@ -113,7 +113,11 @@ Translate an upstream `subagent` into one of:
 1. direct Web/repository/primary-source research when context isolation is unnecessary;
 2. a real fresh ChatGPT conversation for independent research, adversarial review, orthogonal work, or context isolation.
 
-When a fresh conversation is useful, produce a short handoff containing only:
+Preserve upstream main-flow context hygiene: keep `GRILL → SPEC → TO-TICKETS` in one continuous Web conversation through `TICKETS COMPLETE` when practical. Do not insert fresh chats or `/handoff` between those phases merely because the work is repository-backed. If context quality approaches the smart-zone limit, recover at the nearest phase boundary rather than pushing on with degraded context.
+
+Use upstream `/handoff` semantics narrowly for portability: a new harness, a new repository/directory, a colleague, or a side-task fork. Do not use a full handoff as the default transition between canonical implementation tickets.
+
+When a genuine portability handoff is useful, produce a short handoff containing only:
 
 - Goal
 - Canonical state
@@ -125,6 +129,15 @@ When a fresh conversation is useful, produce a short handoff containing only:
 - What not to do
 
 Omit fields that add no value.
+
+After `TICKETS COMPLETE`, start each canonical ticket in a fresh IMPLEMENT conversation with a thin self-locating dispatch rather than a handoff summary. The dispatch must identify:
+
+- Web-first workflow: `https://github.com/TimCole666/web-first-prompts`, adapter `web-first.md`; read current `main` before substantive work unless the user explicitly pins a workflow revision;
+- canonical product repository and branch;
+- canonical spec path or URL;
+- selected canonical ticket by stable path or tracker ID/URL.
+
+Tell the fresh IMPLEMENT conversation to inspect those canonical sources before making judgments. Do not copy canonical workflow rules, spec or issue contents, or diffs into the dispatch when they can be retrieved canonically; reference them by locator or commit instead. Include only session-local findings or constraints that are not already recorded elsewhere and materially matter to the selected ticket.
 
 Translate local `/clear`, `/compact`, and `/handoff` mechanics into real ChatGPT context management rather than pretending local agent state exists.
 
@@ -249,7 +262,7 @@ First decide whether the implementation is genuinely multi-session.
 - If **no**, implementation may continue directly; use a fresh conversation only when it materially improves context quality or independence.
 - If work was already classified as multi-session, do not silently bypass `to-tickets`. Skip it only if new evidence shows the work now fits one implementation session, or the user explicitly chooses to bypass decomposition.
 
-For a multi-session build:
+For a multi-session build, keep the planning chain in the same Web conversation through ticket publication and `TICKETS COMPLETE` unless context quality forces recovery at a phase boundary. Fresh IMPLEMENT conversations begin only after canonical tickets exist.
 
 1. derive the ticket breakdown from the canonical spec and current canonical repository, not from an unpushed implementation attempt;
 2. follow upstream tracer-bullet rules: each ticket is a narrow but complete vertical slice, independently demoable or verifiable, and sized for one fresh context window;
@@ -257,7 +270,7 @@ For a multi-session build:
 4. present the proposed breakdown and get the user's granularity / dependency confirmation as upstream requires;
 5. select or preserve the canonical tracker backend using the tracker rules below; do not let the available write transport choose it;
 6. publish the approved tickets to that tracker;
-7. start implementation from the current ticket frontier, one canonical ticket per fresh IMPLEMENT conversation.
+7. after `TICKETS COMPLETE`, start implementation from the current ticket frontier, one canonical ticket per fresh IMPLEMENT conversation.
 
 Do not let `/implement` invent a conversation-local "first slice" when canonical execution tickets are required.
 
@@ -390,7 +403,7 @@ Ticket publication happens **after** the canonical spec is persisted, so tickets
 
 Each ticket should use upstream `to-tickets` semantics and contain only the information needed to execute the slice. In addition to the upstream behaviour, acceptance criteria, and blockers, include a concise canonical spec reference and the verification path when that prevents ambiguity. Do not copy the whole spec into every ticket.
 
-For each fresh IMPLEMENT conversation, the coordinator should select one ticket from the current **frontier**: an open ticket whose blockers are all complete, respecting any tracker-native claim/assignment state. The handoff should identify the canonical repository/spec and the selected ticket by stable path or tracker ID/URL. The implementation session must not invent a replacement ticket or a new conversation-local slice. After tracker lifecycle state is updated, recompute the frontier from the canonical tracker.
+For each fresh IMPLEMENT conversation, the coordinator should select one ticket from the current **frontier**: an open ticket whose blockers are all complete, respecting any tracker-native claim/assignment state. Seed that fresh session with the thin self-locating dispatch defined above, not a full handoff summary. The implementation session must not invent a replacement ticket or a new conversation-local slice. After tracker lifecycle state is updated, recompute the frontier from the canonical tracker.
 
 ADRs, `CONTEXT.md`, roadmaps, and other project-management artifacts remain opt-in and require their own concrete value.
 
