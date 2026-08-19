@@ -284,21 +284,36 @@ For work that genuinely fits one implementation session:
 
 ### Implementation and TDD
 
-Author the actual implementation and tests in ChatGPT Web.
+ChatGPT Web owns test design, test code, production code, and repairs from test or verification failures.
 
-If a suitable Web runtime can execute the relevant project:
+Use the current upstream TDD semantics where TDD is valuable: work at pre-agreed seams, observe a real RED before writing the minimal GREEN change, and proceed one vertical slice at a time. Do not describe a cycle as TDD unless both RED and GREEN were actually observed.
 
-- run the tests there;
-- use real RED → GREEN when practical;
-- repair failures from actual output;
-- never claim execution that did not occur.
+Treat research, authorship, and execution as separate concerns. Continue to use Web search, official documentation, primary sources, and repository/source inspection proactively when implementation facts are uncertain.
 
-If the canonical runtime cannot execute in Web:
+Before deciding where to execute, cheaply probe the existing Web development environment for the required runtime, toolchain, and already-available dependencies.
 
-- still author the implementation and tests;
-- deliver a precise incremental patch;
-- provide exact deterministic verification commands;
-- treat returned local/CI output as canonical evidence for the next repair cycle.
+- If the required environment is already available at negligible setup cost, Web may run targeted tests, typechecking, or builds for fast implementation feedback. Real RED → GREEN observed there is valid development evidence.
+- Do not download, install, or provision a missing substantial project runtime, engine, toolchain, service, or dependency environment merely to make Web-side execution possible.
+- If Web execution would require that provisioning, stop at authorship and use the project's real local or CI runtime for execution instead.
+
+For repository-backed work, treat the project's canonical local/CI runtime as the authoritative verification environment unless the repository already establishes another one. Web-side execution is opportunistic feedback, not a reason to replace required project-runtime verification.
+
+When a valuable TDD slice cannot execute cheaply in Web:
+
+```text
+Web authors one RED test
+→ local/CI mechanically applies or runs the exact command
+→ return the real output
+→ Web confirms the expected RED and authors the minimal GREEN change
+→ local/CI reruns the same focused verification
+→ repeat only while the next TDD slice is worth the round trip
+```
+
+Keep the local role mechanical: it does not design tests, change implementation, or diagnose failures. Returned execution output is evidence for ChatGPT Web, which owns diagnosis and repair.
+
+Do not force TDD where its round-trip cost exceeds its value. Preserve upstream `implement`'s "where possible" posture and concentrate TDD on pre-agreed, behaviorally important seams. Other implementation may be authored with appropriate tests and verified normally.
+
+Before completing repository-backed work, run the required project verification in the authoritative local/CI runtime even when Web-side checks already passed. Never claim execution that did not occur.
 
 After repository bootstrap, prefer incremental patches over full-repository archives.
 
