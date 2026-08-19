@@ -249,8 +249,9 @@ For a multi-session build:
 2. follow upstream tracer-bullet rules: each ticket is a narrow but complete vertical slice, independently demoable or verifiable, and sized for one fresh context window;
 3. declare only real blocking edges;
 4. present the proposed breakdown and get the user's granularity / dependency confirmation as upstream requires;
-5. publish the approved tickets to canonical coordination state;
-6. start implementation from the current ticket frontier, one canonical ticket per fresh IMPLEMENT conversation.
+5. select or preserve the canonical tracker backend using the tracker rules below; do not let the available write transport choose it;
+6. publish the approved tickets to that tracker;
+7. start implementation from the current ticket frontier, one canonical ticket per fresh IMPLEMENT conversation.
 
 Do not let `/implement` invent a conversation-local "first slice" when canonical execution tickets are required.
 
@@ -269,7 +270,8 @@ GRILL or other upstream entry
 → SPEC COMPLETE
 → to-tickets
 → user confirms ticket granularity / blocking edges
-→ persist canonical tickets
+→ select or preserve canonical tracker backend
+→ publish canonical tickets through that tracker
 → TICKETS COMPLETE
 → IMPLEMENT one frontier ticket per fresh conversation
 ```
@@ -334,18 +336,40 @@ Tickets have real execution value when they:
 
 Tickets are ceremony when they merely split a one-session change, divide work by helper/layer rather than observable behaviour, or duplicate the spec without improving execution.
 
-Follow the project's existing canonical tracker convention when one exists.
+Treat **tracker selection** and **write transport** as separate decisions.
 
-For a GitHub-backed project with no established tracker:
+Follow the project's existing canonical tracker convention when one exists. When no tracker convention is already established:
 
-1. prefer GitHub Issues when the connected GitHub capability can actually create them for the repository;
-2. otherwise persist one ticket per file in the canonical repository; follow an existing project convention, or use a minimal `tickets/` directory if none exists.
+- For a canonical GitHub repository whose genuine multi-session work benefits from stable ticket IDs, blocker/dependency state, open/closed state, or fresh-conversation coordination, default to **GitHub Issues** unless the user or project has already chosen otherwise. This preserves upstream setup's default posture for a GitHub remote.
+- Prefer upstream **local Markdown** when no real tracker is configured or desired and local repository state is sufficient for the work. Use the upstream per-ticket layout `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, one file per ticket, with its current status/blocker semantics. Do not invent a combined `docs/tickets.md` or another tracker shape unless the project explicitly chooses it.
+- For another already-selected real tracker, preserve that tracker and follow its configured workflow.
 
-If tickets are GitHub Issues, the published issues themselves are canonical coordination state; no extra repo commit exists merely to represent them. If tickets are repository files, commit and push them before implementation starts.
+A connector permission or capability failure is a transport failure, not a tracker-selection signal. **Never silently change the selected tracker backend because one write path failed.**
 
-Ticket publication happens **after** the canonical spec is persisted, so tickets can reference the canonical spec/path/commit. `TICKETS COMPLETE` means the user-approved breakdown has been published to canonical coordination state.
+For GitHub Issues, publish and maintain the selected tracker with this fallback order:
+
+1. if the connected Web GitHub capability can perform the required issue write, use it directly;
+2. otherwise, when authenticated local `gh` is available, ChatGPT Web authors an exact zero-placeholder `gh` command/script and local execution performs only the mechanics;
+3. if neither path can write the selected GitHub tracker, report the capability blocker. Change tracker backend only after an explicit user decision when that would change canonical execution-work semantics.
+
+A deterministic `gh` fallback must keep ticket authorship in Web: repository identity, titles, bodies, acceptance criteria, and blocker relationships are already fixed. It should create blockers first, capture the real issue identifiers mechanically, use those identifiers for dependency references, guard against obvious duplicate creation before the first write, and return the created issue URLs/numbers for verification. Runtime-generated issue numbers are execution results, not user-editable placeholders.
+
+Apply the same transport fallback to later tracker lifecycle writes when the workflow calls for them: claim/assignment, labels, comments, dependency updates, close/reopen, or other status changes. A connector becoming read-only later does not make the tracker non-canonical.
+
+If GitHub Issues are selected, canonical state is split deliberately:
+
+```text
+canonical product / architecture state = pushed GitHub repository
+canonical execution-work state         = GitHub Issues
+```
+
+Do not mirror issue bodies or status into repository Markdown merely for canonicality. If local Markdown is selected instead, those upstream-format ticket files are the execution-work state and must be persisted wherever later workers are expected to read them.
+
+Ticket publication happens **after** the canonical spec is persisted, so tickets can reference the canonical spec/path/commit. `TICKETS COMPLETE` means the user-approved breakdown has been published to the selected canonical tracker.
 
 Each ticket should use upstream `to-tickets` semantics and contain only the information needed to execute the slice. In addition to the upstream behaviour, acceptance criteria, and blockers, include a concise canonical spec reference and the verification path when that prevents ambiguity. Do not copy the whole spec into every ticket.
+
+For each fresh IMPLEMENT conversation, the coordinator should select one ticket from the current **frontier**: an open ticket whose blockers are all complete, respecting any tracker-native claim/assignment state. The handoff should identify the canonical repository/spec and the selected ticket by stable path or tracker ID/URL. The implementation session must not invent a replacement ticket or a new conversation-local slice. After tracker lifecycle state is updated, recompute the frontier from the canonical tracker.
 
 ADRs, `CONTEXT.md`, roadmaps, and other project-management artifacts remain opt-in and require their own concrete value.
 
@@ -374,6 +398,7 @@ Classify findings as:
 - Never hand off user-editable semantic placeholders when the local role is deterministic execution.
 - Never claim a repository-backed SPEC phase is complete before its canonical persistence step succeeds.
 - Never let `/implement` invent conversation-local slices for a genuine multi-session build before canonical ticket decomposition is complete.
+- Never change the selected tracker backend merely because one connector or write transport failed.
 
 ## Precedence
 
