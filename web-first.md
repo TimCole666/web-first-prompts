@@ -53,6 +53,35 @@ In particular, `CONTEXT.md`, ADRs, `.scratch` trackers, ticket trees, setup scaf
 
 For ordinary Web-first work, prefer the stateless upstream primitive when the stateful wrapper exists mainly to maintain local coordination files. For example, prefer `grill-me` / `grilling` semantics over creating `CONTEXT.md` just because a repository exists.
 
+### Deterministic local handoffs
+
+When the local side is assigned deterministic mechanics, the final handoff must be executable without the user making design, naming, policy, or target-selection decisions while editing commands.
+
+Before emitting a final local command block:
+
+1. resolve values that can be discovered from canonical state, connected tools, authenticated context, existing remotes, or deterministic tool output;
+2. reuse values the user already explicitly confirmed; do not ask for them again;
+3. identify only the remaining user-owned values that materially change the target or result;
+4. ask for those values, give recommendations when useful, and wait for confirmation;
+5. only then emit the exact commands.
+
+Final deterministic handoffs must contain **zero user-editable semantic placeholders**, including forms such as:
+
+```text
+<OWNER>
+<REPO>
+<BRANCH>
+<PATH>
+YOUR_USERNAME
+CHOOSE_PUBLIC_OR_PRIVATE
+```
+
+Runtime shell variables are allowed when they are populated mechanically and do not hide a user-owned choice, for example `ROOT="$(pwd)"`.
+
+If a required fact is only discoverable from the local environment, first give an exact discovery command and ask the user to return its output. That discovery step is mechanical; use its result before producing the final action block.
+
+A recommendation is not a resolved command parameter.
+
 ### Subagents and context boundaries
 
 Do not simulate multiple subagents inside one answer.
@@ -163,7 +192,22 @@ ChatGPT Web should:
 1. finalize any required high-impact seam confirmations;
 2. choose the minimal bootstrap contents;
 3. author the bootstrap artifact, including the final canonical spec;
-4. provide deterministic repository initialization / validation / commit / push mechanics.
+4. resolve the canonical repository-creation parameters required for the first push;
+5. provide exact deterministic repository initialization / validation / commit / push mechanics.
+
+Before the final repository-creation commands, inspect any reliably discoverable GitHub identity, organization context, and existing remote information.
+
+Treat discovery and choice separately:
+
+- an authenticated GitHub identity is a discovered candidate, not automatically the intended repository owner;
+- use an owner without asking only when prior user-confirmed context already establishes that owner, or the user explicitly delegated repository placement;
+- confirm the repository name unless the user already supplied an exact repository/project name that clearly serves as the repo name, or explicitly delegated naming;
+- confirm visibility unless `public` / `private` was already explicitly fixed or delegated;
+- ask about description, license, branch naming, organization policy, or other bootstrap options only when they materially matter to this repository.
+
+Ask only the unresolved values. Do not turn bootstrap into a generic GitHub questionnaire.
+
+After those values are resolved, the final creation/push commands must obey the deterministic local handoff invariant above: no `<OWNER>`, `<REPO>`, visibility toggle, or other user-editable semantic placeholder may remain.
 
 With no established repository convention, default the canonical spec to `SPEC.md`.
 
@@ -188,9 +232,11 @@ GRILL or other upstream entry
 → to-spec synthesis
 → targeted high-impact seam confirmation when required
 → final spec
-→ canonical persistence
+→ resolve any user-owned canonicalization parameters
+→ exact zero-placeholder persistence handoff
 → deterministic verification / diff inspection
 → commit + push
+→ verify pushed canonical state
 → SPEC COMPLETE
 → IMPLEMENT (fresh conversation when appropriate)
 ```
@@ -262,6 +308,7 @@ Classify findings as:
 - Do not treat GitHub stars as quality, but treat extremely low adoption as a reason to default to reference rather than dependency.
 - Use the smallest workflow that fits the task.
 - Never claim verification without actual execution evidence.
+- Never hand off user-editable semantic placeholders when the local role is deterministic execution.
 - Never claim a repository-backed SPEC phase is complete before its canonical persistence step succeeds.
 
 ## Precedence
